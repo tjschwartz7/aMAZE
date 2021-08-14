@@ -10,7 +10,9 @@ namespace aMAZEing
             int size = ((rand.Next(4, 16) * 2) + 1);
             char[,] maze = new char[size,size];
             maze = initMaze(maze, size);
+            printMaze(maze, size);
             mazeifyMaze(maze, size);
+            printMaze(maze, size);
             connectPaths(maze, size);
             printMaze(maze, size);
             
@@ -181,13 +183,52 @@ namespace aMAZEing
 
         public static void connectToStart(char[,] maze, int size)
         {
-            for (int i = 0; i < size; i++)
+
+            //Start in the top left corner (obviously) and work your way down. Check every data spot in the array to see if it turns in a direction. If it turns somewhere, follow it.
+            //Might want to use a stack for these parts. If there are any intersections, i.e a turn that goes two ways, might want to use a stack to see where you're going. If the stack
+            //brings you back to the start/end, that section is good. Start in a different branch. Repeat process. I bet stacks would work for this, its like pathfinding.
+
+            //STEPS
+            //1, MAZE[1,1] add to stack
+            //2, Keep moving down i.e maze[1,2.3.4] etc.
+            //3, Have a variable hold how far you've traveled downwards.
+            //4, Stop once you've found a turn or lackthereof.
+            //5, if no turn, make a turn at rand.Next(currentRow - distanceTraveled, currentRow)
+            //6, If turn, add it to the stack. Keep going until you find another turn or lackthereof.
+            //7, If no turn, repeat line 5
+            //8, If yes, pick a random turn and add it to the stack. Keep moving until you either find a turn, an exit/start, or dead end. For dead end, pop the stack back until the intersection
+            //9, Pick the other turn this time
+            //repeat these steps until a beginning/end is found, or naught but dead ends.
+            //this is just a bunch of pathfinding.
+
+            //OR
+            //JUST MOVE DOWN EACH INDIVIDUAL COLUMN- SCAN FOR '+' WITH ADJACENT ONES. BOOLEAN 'HASTURN' = true until no turn is found... 
+            //when no turn is found, insert one into a random spot. If a turn is found, do nothing.
+
+            Random rand = new Random();
+            for(int i = 0; i < size - 1; i++)
             {
-                for (int j = 0; j < size; j++)
+                bool hasTurn = false;
+                for (int j = 0; j < size - 1; j++)
                 {
-
-
-
+                    
+                    if(maze[j,i] == '+')
+                    {
+                        if(maze[j,i - 1] != '#' || maze[j, i + 1] != '#')
+                        {
+                            hasTurn = true;
+                        }
+                    }
+                    else if(!hasTurn)
+                    {
+                        int turn = rand.Next(1, i - 1);
+                        int add = 1;
+                        if (i == 1) add = 1;
+                        else if (i == size - 1) add = -1;
+                        
+                        maze[turn, i + add] = '+';
+                        hasTurn = false;
+                    }
                 }
             }
         }
@@ -202,8 +243,9 @@ namespace aMAZEing
                 }
                 Console.WriteLine();
             }
-
+            Console.WriteLine("\n");
         }
 
     }
 }
+
